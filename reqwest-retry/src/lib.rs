@@ -35,8 +35,8 @@ use thiserror::Error;
 pub use middleware::{RetryCount, RetryTransientMiddleware};
 pub use retryable::Retryable;
 pub use retryable_strategy::{
-    default_on_request_failure, default_on_request_success, DefaultRetryableStrategy,
-    RetryableStrategy,
+    default_on_request_error, default_on_request_failure, default_on_request_success,
+    DefaultRetryableStrategy, RetryableStrategy,
 };
 
 /// Custom error type to attach the number of retries to the error message.
