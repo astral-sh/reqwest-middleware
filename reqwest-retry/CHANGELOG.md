@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated `retry-policies` (re-exported as `reqwest_retry::policies`) to 0.5.
 
+### Added
+- Report retry count on `Ok` results that underwent retries through a `RetryCount` response extension.
+
 ### Changed
 
 - Updated `thiserror` to `2.0`
