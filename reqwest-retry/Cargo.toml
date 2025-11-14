@@ -1,5 +1,5 @@
 [package]
-name = "reqwest-retry"
+name = "astral-reqwest-retry"
 version = "0.9.1"
 authors = ["Rodrigo Gryzinski <rodrigo.gryzinski@truelayer.com>"]
 edition = "2018"
@@ -9,12 +9,15 @@ license = "MIT OR Apache-2.0"
 keywords = ["reqwest", "http", "middleware", "retry"]
 categories = ["web-programming::http-client"]
 
+[lib]
+name = "reqwest_retry"
+
 [features]
 default = ["tracing"]
 tracing = ["dep:tracing"]
 
 [dependencies]
-reqwest-middleware = { version = "0.5", path = "../reqwest-middleware" }
+reqwest-middleware = { version = "0.5", path = "../reqwest-middleware", package = "astral-reqwest-middleware" }
 
 anyhow = "1.0.0"
 async-trait = "0.1.51"
