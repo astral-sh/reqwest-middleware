@@ -1,5 +1,5 @@
 [package]
-name = "reqwest-tracing"
+name = "astral-reqwest-tracing"
 version = "0.5.8"
 authors = ["Rodrigo Gryzinski <rodrigo.gryzinski@truelayer.com>"]
 edition = "2018"
@@ -8,6 +8,9 @@ repository = "https://github.com/TrueLayer/reqwest-middleware"
 license = "MIT OR Apache-2.0"
 keywords = ["reqwest", "http", "middleware", "opentelemetry", "tracing"]
 categories = ["web-programming::http-client"]
+
+[lib]
+name = "reqwest_tracing"
 
 [features]
 opentelemetry_0_20 = ["opentelemetry_0_20_pkg", "tracing-opentelemetry_0_21_pkg"]
@@ -27,7 +30,7 @@ opentelemetry_0_30 = ["opentelemetry_0_30_pkg", "tracing-opentelemetry_0_31_pkg"
 deprecated_attributes = []
 
 [dependencies]
-reqwest-middleware = { version = ">0.3.0, <0.5.0", path = "../reqwest-middleware" }
+reqwest-middleware = { version = ">0.3.0, <0.5.0", path = "../reqwest-middleware", package = "astral-reqwest-middleware" }
 
 anyhow = "1.0.70"
 async-trait = "0.1.51"
