@@ -3,16 +3,15 @@
 A crate implementing a wrapper around [reqwest](https://crates.io/crates/reqwest)
 to allow for client middleware chains.
 
-[![Crates.io](https://img.shields.io/crates/v/reqwest-middleware.svg)](https://crates.io/crates/reqwest-middleware)
-[![Docs.rs](https://docs.rs/reqwest-middleware/badge.svg)](https://docs.rs/reqwest-middleware)
-[![CI](https://github.com/TrueLayer/reqwest-middleware/workflows/CI/badge.svg)](https://github.com/TrueLayer/reqwest-middleware/actions)
-[![Coverage Status](https://coveralls.io/repos/github/TrueLayer/reqwest-middleware/badge.svg?branch=main&t=YKhONc)](https://coveralls.io/github/TrueLayer/reqwest-middleware?branch=main)
+[![Crates.io](https://img.shields.io/crates/v/astral-reqwest-middleware.svg)](https://crates.io/crates/astral-reqwest-middleware)
+[![Docs.rs](https://docs.rs/astral-reqwest-middleware/badge.svg)](https://docs.rs/astral-reqwest-middleware)
+[![CI](https://github.com/astral-sh/reqwest-middleware/workflows/CI/badge.svg)](https://github.com/astral-sh/reqwest-middleware/actions)
 
 This crate provides functionality for building and running middleware but no middleware
 implementations. This repository also contains a couple of useful concrete middleware crates:
 
-* [`reqwest-retry`](https://crates.io/crates/reqwest-retry): retry failed requests.
-* [`reqwest-tracing`](https://crates.io/crates/reqwest-tracing):
+* [`reqwest-retry`](https://crates.io/crates/astral-reqwest-retry): retry failed requests.
+* [`reqwest-tracing`](https://crates.io/crates/astral-reqwest-tracing):
   [`tracing`](https://crates.io/crates/tracing) integration, optional opentelemetry support.
 
 Note about browser support: automated tests targeting wasm are disabled. The crate may work with
@@ -29,10 +28,10 @@ The `reqwest-middleware` client exposes the same interface as a plain `reqwest` 
 # Cargo.toml
 # ...
 [dependencies]
-reqwest = { version = "0.12", features = ["rustls-tls"] }
-reqwest-middleware = "0.4"
-reqwest-retry = "0.7"
-reqwest-tracing = "0.5"
+reqwest = { version = "0.13.1", features = ["rustls"] }
+reqwest-middleware = "0.5"
+reqwest-retry = "0.9"
+reqwest-tracing = "0.6"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -78,14 +77,3 @@ Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
 dual licensed as above, without any additional terms or conditions.
 </sub>
-
-## Third-party middleware
-
-The following third-party middleware use `reqwest-middleware`:
-
-- [`reqwest-conditional-middleware`](https://github.com/oxidecomputer/reqwest-conditional-middleware) - Per-request basis middleware
-- [`http-cache`](https://github.com/06chaynes/http-cache) - HTTP caching rules
-- [`reqwest-cache`](https://gitlab.com/famedly/company/backend/libraries/reqwest-cache) - HTTP caching
-- [`aliri_reqwest`](https://github.com/neoeinstein/aliri/tree/main/aliri_reqwest) - Background token management and renewal
-- [`http-signature-normalization-reqwest`](https://crates.io/crates/http-signature-normalization-reqwest) (not free software) - HTTP Signatures
-- [`reqwest-chain`](https://github.com/tommilligan/reqwest-chain) - Apply custom criteria to any reqwest response, deciding when and how to retry.
