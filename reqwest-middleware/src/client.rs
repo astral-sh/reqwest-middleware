@@ -458,6 +458,7 @@ impl RequestBuilder {
     /// # Errors
     /// This method will fail if the object you provide cannot be serialized
     /// into a query string.
+    #[cfg(feature = "query")]
     pub fn query<T: serde::Serialize + ?Sized>(self, query: &T) -> Self {
         RequestBuilder {
             inner: self.inner.query(query),
@@ -493,6 +494,7 @@ impl RequestBuilder {
     ///
     /// This method fails if the passed value cannot be serialized into
     /// url encoded format
+    #[cfg(feature = "form")]
     pub fn form<T: serde::Serialize + ?Sized>(self, form: &T) -> Self {
         RequestBuilder {
             inner: self.inner.form(form),
