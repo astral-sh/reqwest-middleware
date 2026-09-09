@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.2](https://github.com/astral-sh/reqwest-middleware/compare/astral-reqwest-retry-v0.9.1...astral-reqwest-retry-v0.9.2) - 2026-09-09
+
+### Other
+
+- Make retry tests reliable on slow runners ([#14](https://github.com/astral-sh/reqwest-middleware/pull/14))
+
 ### Fixed
 
 - Make timeout and incomplete-response retry tests reliable on slow runners.
