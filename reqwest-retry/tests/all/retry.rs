@@ -2,8 +2,10 @@ use futures::FutureExt;
 use paste::paste;
 use reqwest::Client;
 use reqwest::StatusCode;
-use reqwest_middleware::ClientBuilder;
-use reqwest_retry::{policies::ExponentialBackoff, RetryTransientMiddleware};
+use reqwest_middleware::{ClientBuilder, Error};
+use reqwest_retry::{
+    policies::ExponentialBackoff, RetryCount, RetryError, RetryTransientMiddleware,
+};
 use std::sync::atomic::AtomicI8;
 use std::sync::{
     atomic::{AtomicU32, Ordering},
@@ -151,42 +153,15 @@ assert_retry_succeeds!(429, StatusCode::OK);
 assert_no_retry!(431, StatusCode::REQUEST_HEADER_FIELDS_TOO_LARGE);
 assert_no_retry!(451, StatusCode::UNAVAILABLE_FOR_LEGAL_REASONS);
 
-pub struct RetryTimeoutResponder(Arc<AtomicU32>, u32, std::time::Duration);
-
-impl RetryTimeoutResponder {
-    fn new(retries: u32, initial_timeout: std::time::Duration) -> Self {
-        Self(Arc::new(AtomicU32::new(0)), retries, initial_timeout)
-    }
-}
-
-impl Respond for RetryTimeoutResponder {
-    fn respond(&self, _request: &wiremock::Request) -> ResponseTemplate {
-        let mut retries = self.0.load(Ordering::SeqCst);
-        retries += 1;
-        self.0.store(retries, Ordering::SeqCst);
-
-        if retries + 1 >= self.1 {
-            ResponseTemplate::new(200)
-        } else {
-            ResponseTemplate::new(500).set_delay(self.2)
-        }
-    }
-}
-
 #[tokio::test]
 async fn assert_retry_on_request_timeout() {
-    let server = MockServer::start().await;
-    Mock::given(method("GET"))
-        .and(path("/foo"))
-        .respond_with(RetryTimeoutResponder::new(
-            3,
-            std::time::Duration::from_millis(1000),
-        ))
-        .expect(2)
-        .mount(&server)
-        .await;
+    // Keep the socket open without accepting connections or sending responses,
+    // so every attempt times out even on a slow runner.
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
 
-    let reqwest_client = Client::builder().build().unwrap();
+    let uri = format!("http://{}", listener.local_addr().unwrap());
+
+    let reqwest_client = Client::builder().no_proxy().build().unwrap();
     let client = ClientBuilder::new(reqwest_client)
         .with(RetryTransientMiddleware::new_with_policy(
             ExponentialBackoff::builder()
@@ -198,14 +173,21 @@ async fn assert_retry_on_request_timeout() {
         ))
         .build();
 
-    let resp = client
-        .get(format!("{}/foo", server.uri()))
+    let err = client
+        .get(format!("{}/foo", uri))
         .timeout(std::time::Duration::from_millis(10))
         .send()
         .await
-        .expect("call failed");
+        .expect_err("all attempts should time out");
 
-    assert_eq!(resp.status(), 200);
+    let Error::Middleware(err) = err else {
+        panic!("expected a retry error, got {:?}", err);
+    };
+    let RetryError::WithRetries { retries, err } = err.downcast::<RetryError>().unwrap() else {
+        panic!("request was not retried");
+    };
+    assert_eq!(retries, 3);
+    assert!(err.is_timeout(), "expected a timeout, got {:?}", err);
 }
 
 #[tokio::test]
@@ -253,14 +235,19 @@ async fn assert_retry_on_incomplete_message() {
         ))
         .build();
 
+    // The server closes each incomplete response, so a request timeout is not
+    // needed and could consume retries on slow runners.
     let resp = client
         .get(format!("{}/foo", uri))
-        .timeout(std::time::Duration::from_millis(100))
         .send()
         .await
         .expect("call failed");
 
     assert_eq!(resp.status(), 200);
+    assert_eq!(
+        resp.extensions().get::<RetryCount>(),
+        Some(&RetryCount::new(3))
+    );
 }
 
 #[tokio::test]
